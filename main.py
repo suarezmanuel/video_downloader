@@ -53,20 +53,6 @@ def check_id(video_id):
 
     return None
 
-host = 'brd.superproxy.io'
-port = 33335
-username = 'brd-customer-hl_ca6f9231-zone-datacenter_proxy1'
-password = 'gtk2w57o1b1i'
-
-proxy_url = f'http://{username}:{password}@{host}:{port}'
-proxies = {
-    'http': proxy_url,
-    'https': proxy_url
-}
-
-session = requests.Session()
-session.proxies.update(proxies)
-
 def check_status_code(video_id):
     check_url = URL_TEMPLATE.format(video_id)
     try: 
@@ -76,26 +62,35 @@ def check_status_code(video_id):
         pass
     return None
 
-def print_proxy_ip():
-    url = "http://lumtest.com/myip.json"
-    try:
-        response = session.get(url, timeout=10)
-        print("Proxy IP info:", response.json())
-    except requests.exceptions.RequestException as e:
-        print("Error:", e)
-
 if __name__ == "__main__": 
     total_found = 0
-
-    print_proxy_ip()    
-
-    for i in range(0, 100):
-        print(f'{i}: {check_status_code(300000)}')
+    last_time = time.time()
     
-    # with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-    #     results = executor.map(check_id, ids_to_check)
-    #     for result in tqdm(results, total=len(ids_to_check), desc="scanning ids"):
-    #         if results is not None:
-    #             total_found += 1
+    with open('log.txt', 'w') as f, open('results.txt', 'w') as g:
+        for video_id in range(300000, 301000):
+            
+            curr_time = time.time()
+            time_taken = curr_time-last_time
+            
+            status_code = check_status_code(video_id)
+            string = f'{video_id}: {status_code}. time taken : {time_taken}\n'
+            
+            last_time = curr_time
+            
+            f.write(string)
+            print(string)
 
-    print(f"found a total of {total_found} videos")
+            if (time_taken >= 1):
+                print("too much time passed, timeout?")
+                f.write("too much time passed, timeout?\n")
+                break
+            if (status_code not in [200, 404]):
+                print("new status code")
+                f.write("new status code\n")
+                break
+            if (status_code == 200):
+                g.write(f'found thumbnail: {video_id}\n')
+                total_found += 1
+    
+    print(f'found a total of: {total_found} videos')
+                
