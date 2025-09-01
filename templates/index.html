@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Crawler Real-time Plot</title>
+    <!-- Include the Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .chart-container { width: 80%; height: 400px; margin: auto; }
+    </style>
+</head>
+<body>
+    <h1>Webcrawler Performance</h1>
+    <div class="chart-container">
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'scatter', // Scatter plot is perfect for this
+            data: {
+                datasets: [{
+                    label: 'Request Time (s)',
+                    data: [], // Start with empty data
+                    backgroundColor: 'rgb(255, 99, 132)'
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom',
+                        title: {
+                            display: true,
+                            text: 'Video ID'
+                        }
+                    },
+                    y: {
+                         title: {
+                            display: true,
+                            text: 'Time Taken (s)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Function to fetch data and update the chart
+        async function updateChart() {
+            try {
+                const response = await fetch('/data');
+                const newData = await response.json();
+                
+                // Update the chart's data and redraw
+                myChart.data.datasets[0].data = newData;
+                myChart.update();
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }
+
+        // Poll for new data every 2 seconds
+        setInterval(updateChart, 2000);
+    </script>
+</body>
+</html>
