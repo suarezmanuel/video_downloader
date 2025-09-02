@@ -24,9 +24,9 @@ def get_data():
 
 if __name__ == "__main__":
     # Start the crawler in a separate thread
-    crawler_thread = threading.Thread(target=crawl, daemon=True)
+    crawler_thread = threading.Thread(target=crawl, args=(data_lock,), daemon=True)
     crawler_thread.start()
     
     # Run the Flask web server
     # use_reloader=False is important to prevent running the crawler twice
-    app.run(debug=True, use_reloader=False)
+    app.run(debug=True, use_reloader=False, port=5001)

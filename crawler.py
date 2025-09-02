@@ -1,6 +1,6 @@
 import requests
 import time 
-
+# 1000856gf45ie6th717atnevv2
 START_ID = 300000
 RANGE = 1000
 OUTPUT_FILE = "video_ids.txt"
@@ -20,7 +20,7 @@ def check_status_code(video_id):
 
 plot_info = []
 
-def crawl():
+def crawl(data_lock):
     total_found = 0
     last_time = time.time()
     last_id = -1
@@ -63,9 +63,10 @@ def crawl():
                     f.write("new status code\n")
                     break
                 if (status_code == 200):
-                    g.write(f'found thumbnail: {video_id}\n')
+                    g.write(f'{video_id}\n')
                     total_found += 1
-                    plot_info.append({'video_id': video_id, 'time_taken': time_taken})
+                    with data_lock:
+                        plot_info.append({'x': video_id, 'y': time_taken})
                     last_id = video_id
 
         print(f'found a total of: {total_found} videos')
